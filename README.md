@@ -1,0 +1,1 @@
+#Piszę tu cokolwiek, bo Maksym zapomniał
