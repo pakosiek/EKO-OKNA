@@ -9,7 +9,7 @@ from typing import Callable, Tuple
 class MDBase:
 
 
-    def __init__(self, txt: str ="",form_file: bool = False):
+    def __init__(self, txt: str ="",form_file: bool = False) -> None:
         
         self.is_from_file = from_file
         self.content = txt
