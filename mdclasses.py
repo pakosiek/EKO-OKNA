@@ -31,11 +31,8 @@ class MDBase:
                 while (buffer):
                     if (len(buffer) < 64):
                         size = len(buffer) * 8
-                        n = 64 - ((len(buffer) + 9) % 64)
-                        print(n)
-                        print(struct.pack("<Q", size))                      
+                        n = 64 - ((len(buffer) + 9) % 64)                      
                         buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
-                        print(len(buffer))
                         for i in range(0, len(buffer), 64):
                             yield buffer[i:(i+64)]
                     else: yield buffer
