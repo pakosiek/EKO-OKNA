@@ -20,7 +20,7 @@ class MDBase:
 
     @classmethod
     def load_from_file(cls, path: str) -> MDBase:
-        pass
+        return MDBase(txt = path, from_file = True)
 
     def _next_block(self) -> bytes:
         if (self.__is_from_file):
@@ -52,7 +52,7 @@ class MDBase:
 
     @staticmethod            
     def _left_rotate(val: int, shift: int) -> int:
-        pass
+        return ((val << shift)|(val >> (32 - shift)))&0xFFFFFFFF
 
     @abstractclassmethod
     def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
