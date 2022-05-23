@@ -1,4 +1,5 @@
 from __future__ import annotations
+from asyncore import write
 from typing import Callable, Tuple
 from abc import abstractclassmethod
 import struct
@@ -27,23 +28,26 @@ class MDBase:
             f = open(self.__content, "rb")
             if (f.closed): raise OpenFileError
             try:
+                size = 0
                 buffer = f.read(64)
                 while (buffer):
+                    size += 1
                     if (len(buffer) < 64):
-                        size = len(buffer) * 8
-                        n = 64 - ((len(buffer) + 9) % 64)                      
-                        buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
-                        for i in range(0, len(buffer), 64):
-                            yield buffer[i:(i+64)]
-                    else: yield buffer
+                        break    
+                    yield buffer
                     buffer = f.read(64)
+                size = ((64 * size) + len(buffer)) * 8
+                n = 64 - ((len(buffer) + 9) % 64)                      
+                buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
+                for i in range(0, len(buffer), 64):
+                    yield buffer[i:(i+64)]
             finally: 
                 f.close()
         else:
             for i in range(0, len(self.__content), 64):
                 tmp = bytes(self.__content[i:(i+64)], "utf-8")
                 if (len(tmp) < 64):
-                    size = len(tmp) * 8
+                    size = len(self.__content) * 8
                     n = 64 - ((len(tmp) + 9) % 64)                        
                     tmp += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
                     for j in range(0, len(tmp), 64):
