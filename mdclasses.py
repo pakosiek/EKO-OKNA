@@ -65,21 +65,20 @@ class MDBase:
     @abstractclassmethod
     def _code() -> str:
         pass
-<<<<<<< HEAD
-    
-
-class MD4 :
-    def __init__(self, txt):
-        self.txt_encode = txt.encode()
-        n = len(self.txt_encode) * 8        
-
-        #super używamy dopiero przy algorytmie
-        #tutaj ta część z lib struct, to maksym zrób
 
 
-        n_extended = len(self.msg_encode)
+    class MD4 :
+        size = 512
+        def __init__(self, txt):
+            self.txt_encode = txt.encode()
+            n = len(self.txt_encode) * 8        
 
-        self.chunks = [self.txt_encode[i:i+n_extended//8] for i in range(0, len(self.txt_encode), n_extended//8)]
-        #prawdopodobie trzeba jeszcze zaimportowaća0,b0,c0,d0, ale to adrian musi potwierdzić czy tak chce, bo będzie narzekał na ram
-=======
->>>>>>> 28c933a1a85adc05faaebebbcc6c42f922ba6b03
+            
+            self.txt_encode += b"\x80"
+            self.txt_encode += b"\x00" * ((MD4.size - (n + 8 + 64) % MD4.size)//8)
+            self.txt_encode += struct.pack("<Q", n)
+
+            n_extended = len(self.msg_encode)
+
+            self.chunks = [self.txt_encode[i:i+n_extended//8] for i in range(0, len(self.txt_encode), n_extended//8)]
+            #prawdopodobie trzeba jeszcze zaimportowaća0,b0,c0,d0, ale to adrian musi potwierdzić czy tak chce, bo będzie narzekał na ram
