@@ -71,6 +71,11 @@ class MDBase:
         size = 512
         def __init__(self, txt):
             self.txt_encode = txt.encode()
+            a0 = MDBase.a0
+            b0 = MDBase.b0
+            c0 = MDBase.c0
+            d0 = MDBase.d0
+
             n = len(self.txt_encode) * 8        
 
             
