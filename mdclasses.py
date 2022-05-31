@@ -64,28 +64,56 @@ class MDBase:
         pass
     
     @abstractclassmethod
-    def _code() -> str:
+    def _code(self) -> str:
         pass
 
 
 class MD4(MDBase) :
-    size = 512
-    def __init__(self, txt: str = "") -> None :
-        self.txt_encode = txt.encode()
+    def __init__(self, msg: str = "") -> None :
+        super().__init__(txt = msg)
+        self._code()
         
-    @abstractclassmethod
-    def _next_properties(self):
-        super()._next_properties(self)
+    @staticmethod
+    def F(x, y, z) -> bytes :
+        return (x & y) | ((~x) & z)
 
-    @abstractclassmethod
-    def _code():
-        super()._code()
+    @staticmethod
+    def G(x, y, z) -> bytes :
+        return (x & y) | (y & z) | (x & z)
+
+    @staticmethod
+    def H(x, y, z) -> bytes :
+        return x^y^z
+
+    def _code(self):
+        
+        for chunk in super()._next_block():
+            X = list(struct.unpack("<16I", chunk))
+            (A, B, C, D) = (self._a0, self._b0, self._c0, self._d0)
+            for i in range(16):
+                Wlist = [3, 7, 11, 19]
+                y = 0
+                t = A + MD4.F(B, C, D) + X[i]
+                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
+            for k in range(16):
+                y = 0x5A827999
+                Wlist = [3, 5, 9, 13]
+                Zlist = [0,4,8,12,1,5,9,13,2,6,10,14,3,7,11,15]
+                t = A + MD4.G(B, C, D) + X[Zlist[i]] + y
+                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
+            for l in range(16):
+                y = 0x6ED9EBA1
+                Wlist = [3, 9, 11, 15]
+                Zlist = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
+                t = A + MD4.H(B, C, D) + X[Zlist[i]] + y
+                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
+
 
 
 class MD5(MDBase) :
 
     def __init__(self, txt: str = "") -> None :
-         self.txt_encode = txt.encode()
+        self.txt_encode = txt.encode()
         
     @abstractclassmethod
     def _next_properties(self):
