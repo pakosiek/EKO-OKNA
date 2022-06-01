@@ -66,7 +66,6 @@ class MDBase:
     def code(self) -> str:
         pass
 
-
 class MD4(MDBase) :
     def __init__(self, msg: str = "") -> None :
         super().__init__(txt)
@@ -114,9 +113,9 @@ class MD5(MDBase) :
 
     def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
         for i in range(0, 64):
-            y = math.floor(2**32 * abs(math.sin(i+1)))
+            y = math.floor(0x100000000 * abs(math.sin(i+1)))
             if i in range(0, 16):
-                f = lambda x, y, z: (x & y) | ((~z) & y)
+                f = lambda x, y, z: (x & y) | ((~x) & z)
                 z = i
                 if i % 4 == 1:
                     w = 12
@@ -149,7 +148,7 @@ class MD5(MDBase) :
                 else:
                     w = 4
             if i in range(48, 64):
-                f = lambda x, y, z: z ^ (x | (~z))
+                f = lambda x, y, z: y ^ (x | (~z))
                 z = (7*i) % 16
                 if i % 4 == 1:
                     w = 10
@@ -160,8 +159,6 @@ class MD5(MDBase) :
                 else:
                     w = 6
             yield(f, y, z, w)
-
-
 
     def code(self) -> str:
         (A0, B0, C0, D0) = (self._a0, self._b0, self._c0, self._d0)
@@ -179,3 +176,4 @@ class MD5(MDBase) :
         for b in struct.pack("<4L", A0, B0, C0, D0):
             wynik += "{:02x}".format(b)
         return wynik
+        
