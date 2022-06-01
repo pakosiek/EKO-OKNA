@@ -1,9 +1,8 @@
 from __future__ import annotations
-from asyncore import write
 from typing import Callable, Tuple
 from abc import abstractclassmethod
 import struct
-from typing_extensions import Self
+import math
 
 class OpenFileError(Exception):
     def __init__(self, *args: object) -> None:
@@ -64,14 +63,13 @@ class MDBase:
         pass
     
     @abstractclassmethod
-    def _code(self) -> str:
+    def code(self) -> str:
         pass
 
 
 class MD4(MDBase) :
     def __init__(self, msg: str = "") -> None :
-        super().__init__(txt = msg)
-        self._code()
+        super().__init__(txt)
         
     @staticmethod
     def F(x, y, z) -> bytes :
@@ -85,7 +83,7 @@ class MD4(MDBase) :
     def H(x, y, z) -> bytes :
         return x^y^z
 
-    def _code(self):
+    def code(self):
         
         for chunk in super()._next_block():
             X = list(struct.unpack("<16I", chunk))
@@ -109,16 +107,75 @@ class MD4(MDBase) :
                 (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
 
 
-
 class MD5(MDBase) :
 
     def __init__(self, txt: str = "") -> None :
-        self.txt_encode = txt.encode()
-        
-    @abstractclassmethod
-    def _next_properties(self):
-        super()._next_properties(self)
+        super().__init__(txt)
 
-    @abstractclassmethod
-    def _code():
-        super()._code()
+    def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
+        for i in range(0, 64):
+            y = math.floor(2**32 * abs(math.sin(i+1)))
+            if i in range(0, 16):
+                f = lambda x, y, z: (x & y) | ((~z) & y)
+                z = i
+                if i % 4 == 1:
+                    w = 12
+                elif i % 4 == 2:
+                    w = 17
+                elif i % 4 == 3:
+                    w = 22
+                else:
+                    w = 7
+            if i in range(16, 32):
+                f = lambda x, y, z: (x & z) | (y & (~z))
+                z = (5*i + 1) % 16
+                if i % 4 == 1:
+                    w = 9
+                elif i % 4 == 2:
+                    w = 14
+                elif i % 4 == 3:
+                    w = 20
+                else:
+                    w = 5
+            if i in range(32, 48):
+                f = lambda x, y, z: x ^ y ^ z
+                z = (3*i + 5) % 16
+                if i % 4 == 1:
+                    w = 11
+                elif i % 4 == 2:
+                    w = 16
+                elif i % 4 == 3:
+                    w = 23
+                else:
+                    w = 4
+            if i in range(48, 64):
+                f = lambda x, y, z: z ^ (x | (~z))
+                z = (7*i) % 16
+                if i % 4 == 1:
+                    w = 10
+                elif i % 4 == 2:
+                    w = 15
+                elif i % 4 == 3:
+                    w = 21
+                else:
+                    w = 6
+            yield(f, y, z, w)
+
+
+
+    def code(self) -> str:
+        (A0, B0, C0, D0) = (self._a0, self._b0, self._c0, self._d0)
+        for chunk in self._next_block():
+            X = struct.unpack("<16I", chunk)
+            (A, B, C, D) = (A0, B0, C0, D0)
+            for (f, y, z, w) in self._next_properties():
+                F = (B + self._left_rotate(A + f(B, C, D) + X[z] + y & 0xFFFFFFFF, w)) & 0xFFFFFFFF
+                (A, D, C, B) = (D, C, B, F)
+            A0 = (A0 + A) & 0xFFFFFFFF
+            B0 = (B0 + B) & 0xFFFFFFFF
+            C0 = (C0 + C) & 0xFFFFFFFF
+            D0 = (D0 + D) & 0xFFFFFFFF
+        wynik = ""
+        for b in struct.pack("<4L", A0, B0, C0, D0):
+            wynik += "{:02x}".format(b)
+        return wynik
