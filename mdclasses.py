@@ -67,43 +67,51 @@ class MDBase:
         pass
 
 class MD4(MDBase) :
-    def __init__(self, msg: str = "") -> None :
+    def __init__(self, txt: str = "") -> None :
         super().__init__(txt)
-        
-    @staticmethod
-    def F(x, y, z) -> bytes :
-        return (x & y) | ((~x) & z)
 
-    @staticmethod
-    def G(x, y, z) -> bytes :
-        return (x & y) | (y & z) | (x & z)
+    def code(self) -> str :
+        (A0, B0, C0, D0) = (self._a0, self._b0, self._c0, self._d0)
+        for chunk in self._next_block():
+            X = struct.unpack("<16I", chunk)
+            (A, B, C, D) = (A0, B0, C0, D0)
+            for (f, y, z, w) in self._next_properties():
+                F = (self._left_rotate(A + f(B, C, D) + X[z] + y & 0xFFFFFFFF, w)) & 0xFFFFFFFF
+                (A, B, C, D) = (D, F, B, C)
+            A0 = (A0 + A) & 0xFFFFFFFF
+            B0 = (B0 + B) & 0xFFFFFFFF
+            C0 = (C0 + C) & 0xFFFFFFFF
+            D0 = (D0 + D) & 0xFFFFFFFF
+        wynik = ""
+        for b in struct.pack("<4L", A0, B0, C0, D0):
+            wynik += "{:02x}".format(b)
+        return wynik
+            
 
-    @staticmethod
-    def H(x, y, z) -> bytes :
-        return x^y^z
-
-    def code(self):
-        
-        for chunk in super()._next_block():
-            X = list(struct.unpack("<16I", chunk))
-            (A, B, C, D) = (self._a0, self._b0, self._c0, self._d0)
-            for i in range(16):
-                Wlist = [3, 7, 11, 19]
+    def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int] :
+        for i in range(48):
+            if i in range(0, 16):
+                f = lambda x, y, z: (x & y) | ((~x) & z)
                 y = 0
-                t = A + MD4.F(B, C, D) + X[i]
-                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
-            for k in range(16):
+                z = i
+                Wlist = [3, 7, 11, 19]
+                w = Wlist[i % 4]
+            if i in range(16, 32):
+                f = lambda x, y, z: (x & y) | (y & z) | (x & z)
                 y = 0x5A827999
-                Wlist = [3, 5, 9, 13]
                 Zlist = [0,4,8,12,1,5,9,13,2,6,10,14,3,7,11,15]
-                t = A + MD4.G(B, C, D) + X[Zlist[i]] + y
-                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
-            for l in range(16):
+                z = Zlist[i-16]
+                Wlist = [3, 5, 9, 13]
+                w = Wlist[i%4]
+            if i in range(32, 48):
+                f = lambda x, y, z: x^y^z
                 y = 0x6ED9EBA1
                 Wlist = [3, 9, 11, 15]
                 Zlist = [0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15]
-                t = A + MD4.H(B, C, D) + X[Zlist[i]] + y
-                (A, B, C, D) = (D, MDBase._left_rotate(t, Wlist[n % 4]), B, C)
+                w = Wlist[i % 4]
+                z = Zlist[i-32]
+            yield (f, y, z, w)
+
 
 
 class MD5(MDBase) :
