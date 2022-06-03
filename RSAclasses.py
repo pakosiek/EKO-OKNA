@@ -1,6 +1,8 @@
 from typing import Tuple
 import random
 import math
+import pickle
+import os.path
 
 class IsNotPrime(Exception):
     def __init__(self, *args: object) -> None:
@@ -14,7 +16,7 @@ class MessageToLarge(Exception):
     def __str__(self) -> str:
         return "Message is larger than n!"
 
-class RSA:
+class rsa:
     def __init__(self, pries: Tuple[int, int] = None) -> None:
         pass
 
@@ -65,3 +67,31 @@ class RSA:
     def private_key(self) -> Tuple[int, int]:
         return (self.n, self.d)
 
+class DataBaseRSAKey:
+    def __init__(self, path: str = "") -> None:
+        if (len(path) == 0): path = "keys.DB"
+        self.__path = path
+        if (os.path.exists(self.__path)):
+            f = open(self.__path, "rb")
+            self.__arr = pickle.load(f)
+            f.close()
+        else:
+            self.__arr = dict()
+
+    def __del__(self) -> None:
+        f = open(self.__path, "wb")
+        pickle.dump(self.__arr, f)
+        f.close()
+
+    def add(self, id: str, rsa_keys: rsa) -> bool:
+        if id in self.__arr:
+            return False
+        else: 
+            self.__arr.update({id: rsa_keys})
+            return True
+
+    def remove(self, id: str) -> bool:
+        if id in self.__arr: 
+            del self.__arr[id]
+            return True
+        else: return False
