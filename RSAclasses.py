@@ -18,7 +18,38 @@ class MessageToLarge(Exception):
 
 class rsa:
     def __init__(self, primes: Tuple[int, int] = None) -> None:
-        pass
+        
+        (p, q) = (None, None)
+        if (primes):
+            if (not self.__is_prime(primes[0])): raise IsNotPrime
+
+            if (not self.__is_prime(primes[1])): raise IsNotPrime
+
+            (p, q) = primes
+
+        else: (p, q) = self.__find_primes()
+                
+        self.__n = p * q
+                
+
+        phi = (p - 1) * (q - 1)
+        e = random.randrange(1, phi)
+        gcd = math.gcd(e, phi)
+
+        while gcd != 1:
+            e = random.randrange(1, phi)
+            gcd = math.gcd(e, phi)
+
+        self.e = e
+
+        self.d = self.__euclides(e, phi, 1)[0] % phi   
+
+#                              _____     ____
+#                            /      \  |  o | 
+#                            |        |/ ___\| 
+#                            |_________/     
+#                            |_|_| |_|_|
+       
 
     @staticmethod
     def __xgcd(a: int, b: int) -> Tuple[int, int, int]:
