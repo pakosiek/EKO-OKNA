@@ -22,7 +22,25 @@ class rsa:
 
     @staticmethod
     def __xgcd(a: int, b: int) -> Tuple[int, int, int]:
-        pass
+        c1 = 0
+        d1 = 0
+        c2 = 1
+        d2 = 1
+        while b > 0:
+            q = a // b
+            r = a - b * q
+            c = c2 - q * c1
+            d = d1 - q * d2
+            a = b
+            b = r
+            c2 = c1
+            d1 = d2
+            c1 = c
+            d2 = d
+        gcd = a
+        c = c2
+        d = d1
+        return (gcd,c,d)
 
     @staticmethod
     def __euclides(a: int, b: int, c: int) -> Tuple[int, int]:
@@ -52,7 +70,13 @@ class rsa:
 
     @staticmethod
     def __find_primes(num_of_bits: int = 1024) -> Tuple[int, int]:
-        pass
+        a = random.randrange(2**(num_of_bits-1), 2**num_of_bits)
+        while not rsa.__is_prime(a):
+            a = random.randrange(2**(num_of_bits-1), 2**num_of_bits)
+        b = random.randrange(2**(num_of_bits-1), 2**num_of_bits)
+        while not rsa.__is_prime(b):
+            b = random.randrange(2**(num_of_bits-1), 2**num_of_bits) 
+        return(a,b)
 
     @staticmethod
     def code(value: int, public_key: Tuple[int, int]) -> int :
