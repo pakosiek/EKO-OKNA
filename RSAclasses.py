@@ -61,11 +61,11 @@ class rsa:
 
     @property
     def public_key(self) -> Tuple[int, int]:
-        return (self.n, self.e)
+        return (self.__n, self.__e)
 
     @property
     def private_key(self) -> Tuple[int, int]:
-        return (self.n, self.d)
+        return (self.__n, self.__d)
 
 class DataBaseRSAKey:
     def __init__(self, path: str = "") -> None:
