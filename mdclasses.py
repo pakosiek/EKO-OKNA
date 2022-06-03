@@ -76,7 +76,7 @@ class MD4(MDBase) :
             X = struct.unpack("<16I", chunk)
             (A, B, C, D) = (A0, B0, C0, D0)
             for (f, y, z, w) in self._next_properties():
-                F = (self._left_rotate(A + f(B, C, D) + X[z] + y & 0xFFFFFFFF, w)) & 0xFFFFFFFF
+                F = self._left_rotate(A + f(B, C, D) + X[z] + y & 0xFFFFFFFF, w)
                 (A, B, C, D) = (D, F, B, C)
             A0 = (A0 + A) & 0xFFFFFFFF
             B0 = (B0 + B) & 0xFFFFFFFF
