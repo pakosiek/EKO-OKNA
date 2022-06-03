@@ -28,7 +28,7 @@ class rsa:
     def __euclides(a: int, b: int, c: int) -> Tuple[int, int]:
         if c%math.gcd(a, b)==0:
             A = rsa.__xgcd(a, b)
-            return (A[1]*(c/A[0]), A[2]*(c/A[0]))
+            return (A[1]*(c//A[0]), A[2]*(c//A[0]))
         return None
 
     @staticmethod
