@@ -17,7 +17,7 @@ class MessageToLarge(Exception):
         return "Message is larger than n!"
 
 class rsa:
-    def __init__(self, pries: Tuple[int, int] = None) -> None:
+    def __init__(self, primes: Tuple[int, int] = None) -> None:
         pass
 
     @staticmethod
@@ -26,7 +26,10 @@ class rsa:
 
     @staticmethod
     def __euclides(a: int, b: int, c: int) -> Tuple[int, int]:
-        pass
+        if c%math.gcd(a, b)==0:
+            A = rsa.__xgcd(a, b)
+            return (A[1]*(c/A[0]), A[2]*(c/A[0]))
+        return None
 
     @staticmethod
     def __is_prime(value: int, k: int = 20) -> bool:
@@ -53,11 +56,15 @@ class rsa:
 
     @staticmethod
     def code(value: int, public_key: Tuple[int, int]) -> int :
-        pass
+        if value > public_key[0]:
+            raise MessageToLarge
+        return pow(value, public_key[1], public_key[0])
 
     @staticmethod
     def decode(value: int, private_key: Tuple[int, int]) -> int :
-        pass
+        if value > private_key[0] :
+            raise MessageToLarge
+        return pow(value, private_key[1], private_key[0])
 
     @property
     def public_key(self) -> Tuple[int, int]:
