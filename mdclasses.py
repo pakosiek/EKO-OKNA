@@ -59,7 +59,7 @@ class MDBase:
 
     @staticmethod            
     def _left_rotate(val: int, shift: int) -> int:
-        '''A operation on 32-bit integer that moves bits
+        '''An operation on 32-bit integer that moves bits
            from right to left and transfers bits beyond the left boundary
            to the center next to the right boundary.'''
         return ((val << shift) | (val >> (32 - shift))) & 0xFFFFFFFF
