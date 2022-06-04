@@ -5,6 +5,8 @@ import doctest
 
 def y(x):
     
+    a = RSAclasses.rsa(prime_bits_len= 64)
+
     """
     >>> RSAclasses.rsa.decode(RSAclasses.rsa.code(12, a.public_key),a.private_key)
     12
@@ -30,8 +32,14 @@ def y(x):
     1029384756
     RSAclasses.rsa.decode(RSAclasses.rsa.code(11111111111, a.public_key),a.private_key)
     11111111111
-    RSAclasses.rsa.decode(RSAclasses.rsa.code(8008132, a.public_key),a.private_key)
-    8008132
+    RSAclasses.rsa.decode(RSAclasses.rsa.code(128008132, a.public_key),a.private_key)
+    128008132
+    >>> RSAclasses.rsa.decode(RSAclasses.rsa.code(1504201, a.public_key),a.private_key)
+    1504201
+    >>> RSAclasses.rsa.decode(RSAclasses.rsa.code(177013, a.public_key),a.private_key)
+    177103
+    >>> RSAclasses.rsa.decode(RSAclasses.rsa.code(11213785, a.public_key),a.private_key)
+    11213785
     """
     return RSAclasses.rsa.decode(RSAclasses.rsa.code(x, a.public_key),a.private_key)
 
