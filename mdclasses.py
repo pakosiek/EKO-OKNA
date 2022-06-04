@@ -19,33 +19,31 @@ class MDBase:
         self._c0 = 0x98BADCFE
         self._d0 = 0x10325476
 
-    @classmethod
+    @abstractclassmethod
     def load_from_file(cls, path: str) -> MDBase:
         '''Initialisation of the class that will be hashing a file of given path.'''
-        return MDBase(txt = path, from_file = True)
+        pass
 
     def _next_block(self) -> bytes:
         '''Yield a block of data with a length of 64 bytes
            until the end of file or string.'''
         if (self.__is_from_file):
-            f = open(self.__content, "rb")
-            if (f.closed): raise OpenFileError
-            try:
-                size = 0
+            try: f = open(self.__content, "rb")
+            except: raise OpenFileError
+            size = 0
+            buffer = f.read(64)
+            while (buffer):
+                size += 1
+                if (len(buffer) < 64):
+                    break    
+                yield buffer
                 buffer = f.read(64)
-                while (buffer):
-                    size += 1
-                    if (len(buffer) < 64):
-                        break    
-                    yield buffer
-                    buffer = f.read(64)
-                size = ((64 * size) + len(buffer)) * 8
-                n = 64 - ((len(buffer) + 9) % 64)                      
-                buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
-                for i in range(0, len(buffer), 64):
-                    yield buffer[i:(i+64)]
-            finally: 
-                f.close()
+            size = ((64 * size) + len(buffer)) * 8
+            n = 64 - ((len(buffer) + 9) % 64)                      
+            buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
+            for i in range(0, len(buffer), 64):
+                yield buffer[i:(i+64)]
+            f.close()
         else:
             for i in range(0, len(self.__content), 64):
                 tmp = bytes(self.__content[i:(i+64)], "utf-8")
@@ -74,9 +72,13 @@ class MDBase:
 
 class MD4(MDBase):
     '''Class which hashing input data in md4 standard'''
-    def __init__(self, txt: str = "") -> None:
+    def __init__(self, txt: str = "", from_file: bool = False) -> None:
         '''Initialisation of the class that will be hashing a given string.'''
-        super().__init__(txt)
+        super().__init__(txt, from_file)
+
+    @classmethod
+    def load_from_file(cls, path: str) -> MDBase:
+        return MD4(txt = path, from_file = True)
 
     def code(self) -> str:
         '''Returns hash (string representation of 16 bytes / 128 bits) of given data in md4 standard.'''
@@ -127,9 +129,13 @@ class MD4(MDBase):
 
 class MD5(MDBase):
     '''Class which hashing input data in MD5 standard'''
-    def __init__(self, txt: str = "") -> None :
+    def __init__(self, txt: str = "", from_file = True) -> None :
         '''Initialisation of the class that will be hashing a given string.'''
-        super().__init__(txt)
+        super().__init__(txt, from_file)
+
+    @classmethod
+    def load_from_file(cls, path: str) -> MDBase:
+        return MD5(txt = path, from_file = True)
 
     def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
         '''Yield a tuple (f, y, z, w) 64 times where variables means: \n
