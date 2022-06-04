@@ -21,9 +21,12 @@ class MDBase:
 
     @classmethod
     def load_from_file(cls, path: str) -> MDBase:
+        '''Initialisation of the class that will be hashing a file of given path.'''
         return MDBase(txt = path, from_file = True)
 
     def _next_block(self) -> bytes:
+        '''Yield a block of data with a length of 64 bytes
+           until the end of file or string.'''
         if (self.__is_from_file):
             f = open(self.__content, "rb")
             if (f.closed): raise OpenFileError
@@ -56,7 +59,10 @@ class MDBase:
 
     @staticmethod            
     def _left_rotate(val: int, shift: int) -> int:
-        return ((val << shift)|(val >> (32 - shift)))&0xFFFFFFFF
+        '''A operation on 32-bit integer that moves bits
+           from right to left and transfers bits beyond the left boundary
+           to the center next to the right boundary.'''
+        return ((val << shift) | (val >> (32 - shift))) & 0xFFFFFFFF
 
     @abstractclassmethod
     def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
@@ -66,11 +72,14 @@ class MDBase:
     def code(self) -> str:
         pass
 
-class MD4(MDBase) :
-    def __init__(self, txt: str = "") -> None :
+class MD4(MDBase):
+    '''Class which hashing input data in md4 standard'''
+    def __init__(self, txt: str = "") -> None:
+        '''Initialisation of the class that will be hashing a given string.'''
         super().__init__(txt)
 
-    def code(self) -> str :
+    def code(self) -> str:
+        '''Returns hash (string representation of 16 bytes / 128 bits) of given data in md4 standard.'''
         (A0, B0, C0, D0) = (self._a0, self._b0, self._c0, self._d0)
         for chunk in self._next_block():
             X = struct.unpack("<16I", chunk)
@@ -86,9 +95,13 @@ class MD4(MDBase) :
         for b in struct.pack("<4L", A0, B0, C0, D0):
             wynik += "{:02x}".format(b)
         return wynik
-            
 
-    def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int] :
+    def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
+        '''Yield a tuple (f, y, z, w) 48 times where variables means: \n
+           - f: one of functions F, G, H \n
+           - y: an integer which is need to by add to result \n
+           - z: an integer from range [0,16) meaning index of 4-bytes part of 64-bytes block \n
+           - w: a shift for left rotate'''
         for i in range(48):
             if i in range(0, 16):
                 f = lambda x, y, z: (x & y) | ((~x) & z)
@@ -112,14 +125,18 @@ class MD4(MDBase) :
                 z = Zlist[i-32]
             yield (f, y, z, w)
 
-
-
-class MD5(MDBase) :
-
+class MD5(MDBase):
+    '''Class which hashing input data in MD5 standard'''
     def __init__(self, txt: str = "") -> None :
+        '''Initialisation of the class that will be hashing a given string.'''
         super().__init__(txt)
 
     def _next_properties(self) -> Tuple[Callable[[int, int, int], int], int, int, int]:
+        '''Yield a tuple (f, y, z, w) 64 times where variables means: \n
+           - f: one of functions F, G, H, I \n
+           - y: an integer which is need to by add to result \n
+           - z: an integer from range [0,16) meaning index of 4-bytes part of 64-bytes block \n
+           - w: a shift for left rotate'''
         for i in range(0, 64):
             y = math.floor(0x100000000 * abs(math.sin(i+1)))
             if i in range(0, 16):
@@ -169,6 +186,7 @@ class MD5(MDBase) :
             yield(f, y, z, w)
 
     def code(self) -> str:
+        '''Returns hash (string representation of 16 bytes / 128 bits) of given data in md5 standard.'''
         (A0, B0, C0, D0) = (self._a0, self._b0, self._c0, self._d0)
         for chunk in self._next_block():
             X = struct.unpack("<16I", chunk)
@@ -180,8 +198,7 @@ class MD5(MDBase) :
             B0 = (B0 + B) & 0xFFFFFFFF
             C0 = (C0 + C) & 0xFFFFFFFF
             D0 = (D0 + D) & 0xFFFFFFFF
-        wynik = ""
+        result = ""
         for b in struct.pack("<4L", A0, B0, C0, D0):
-            wynik += "{:02x}".format(b)
-        return wynik
-        
+            result += "{:02x}".format(b)
+        return result
