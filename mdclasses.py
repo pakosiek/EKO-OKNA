@@ -50,13 +50,13 @@ class MDBase:
             txt = bytes(self.__content, "utf-8")
             for i in range(0, len(txt), 64):
                 tmp = txt[i:(i+64)]
-                if (len(tmp) < 64):
-                    size = len(txt) * 8
-                    n = (64 - ((len(tmp) + 9) % 64)) % 64
-                    tmp += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
-                    for j in range(0, len(tmp), 64):
-                            yield tmp[j:(j+64)]
+                if (len(tmp) < 64): break
                 else: yield tmp
+            size = len(txt) * 8
+            n = (64 - ((len(tmp) + 9) % 64)) % 64
+            tmp += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
+            for j in range(0, len(tmp), 64):
+                yield tmp[j:(j+64)]
 
     @staticmethod            
     def _left_rotate(val: int, shift: int) -> int:
