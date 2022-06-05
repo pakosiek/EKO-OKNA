@@ -132,7 +132,7 @@ class MD4(MDBase):
 
 class MD5(MDBase):
     '''Class which hashing input data in MD5 standard'''
-    def __init__(self, txt: str = "", from_file = True) -> None :
+    def __init__(self, txt: str = "", from_file = False) -> None :
         '''Initialisation of the class that will be hashing a given string.'''
         super().__init__(txt, from_file)
 
