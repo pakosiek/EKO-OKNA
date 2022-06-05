@@ -7,8 +7,6 @@ def MD5_test(a : str, fromfile = False):
     """
     >>> MD5_test("programowanie obiektowe")
     '80748920af19fc43d240eec073931790'
-    >>> MD5_test("./mdclasses.py", True)
-    '2e9777bb5dcb7a6e9d19e2504d42bbc1'
     >>> MD5_test("./xyz.exe", True)
     Traceback (most recent call last):
     ...
