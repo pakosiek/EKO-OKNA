@@ -48,6 +48,7 @@ class MDBase:
                 f.close()
         else:
             txt = bytes(self.__content, "utf-8")
+            tmp = None
             for i in range(0, len(txt), 64):
                 tmp = txt[i:(i+64)]
                 if (len(tmp) < 64): break
