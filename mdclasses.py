@@ -30,26 +30,29 @@ class MDBase:
         if (self.__is_from_file):
             try: f = open(self.__content, "rb")
             except: raise OpenFileError
-            size = 0
-            buffer = f.read(64)
-            while (buffer):
-                size += 1
-                if (len(buffer) < 64):
-                    break    
-                yield buffer
+            try:
+                size = 0
                 buffer = f.read(64)
-            size = ((64 * size) + len(buffer)) * 8
-            n = 64 - ((len(buffer) + 9) % 64)                      
-            buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
-            for i in range(0, len(buffer), 64):
-                yield buffer[i:(i+64)]
-            f.close()
+                while (buffer):
+                    if (len(buffer) < 64):
+                        break   
+                    size += 1
+                    yield buffer
+                    buffer = f.read(64)
+                size = ((64 * size) + len(buffer)) * 8
+                n = (64 - ((len(buffer) + 9) % 64)) % 64
+                buffer += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
+                for i in range(0, len(buffer), 64):
+                    yield buffer[i:(i+64)]
+            finally: 
+                f.close()
         else:
-            for i in range(0, len(self.__content), 64):
-                tmp = bytes(self.__content[i:(i+64)], "utf-8")
+            txt = bytes(self.__content, "utf-8")
+            for i in range(0, len(txt), 64):
+                tmp = txt[i:(i+64)]
                 if (len(tmp) < 64):
-                    size = len(self.__content) * 8
-                    n = 64 - ((len(tmp) + 9) % 64)                        
+                    size = len(txt) * 8
+                    n = (64 - ((len(tmp) + 9) % 64)) % 64
                     tmp += b"\x80" + (n * b"\x00") + struct.pack("<Q", size)
                     for j in range(0, len(tmp), 64):
                             yield tmp[j:(j+64)]
@@ -208,3 +211,4 @@ class MD5(MDBase):
         for b in struct.pack("<4L", A0, B0, C0, D0):
             result += "{:02x}".format(b)
         return result
+
