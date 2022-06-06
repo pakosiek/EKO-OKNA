@@ -1,0 +1,17 @@
+Implementacja RSA:
+ - mypy zwraca błąd dla m. __euclides
+ - Poprawna impelmentacja!
+ - Należy poprawić dostringi - np. dla __is_prime brakuje nazwy algorytmu.
+ - Poprawna imeplementacja!
+
+
+Implementacja MD4 i MD5 (dodatkowo):
+ - mypy zwraca wiele błędów dla pliku mdclasses!
+ - Doctesty powinny znaleźć się w napisie dokumentującym działanie funkcji/metody/klasy.
+ - testy dla MD4: funkcja powinna zwracać var.code()
+ - Poprawna impelmentacja!
+
+
+- Prosze poprawić informacje w pliku README.md
+
+- Dodałem też plik .gitignore - git nie widzi plików znajdujących się w .gitignore!
