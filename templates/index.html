@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PagineGialle App</title>
+</head>
+<body>
+    <h1>PagineGialle App</h1>
+
+    <form id="data-form">
+        <label for="url-input">URL firmy:</label>
+        <input type="text" id="url-input" name="url" required>
+        <button type="submit">Pobierz dane</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            $('#data-form').submit(function (event) {
+                event.preventDefault();
+                var url = $('#url-input').val();
+                $.ajax({
+                    url: '/get_data',
+                    type: 'POST',
+                    data: { url: url },
+                    success: function (response) {
+                        if (response.error) {
+                            alert(response.error);
+                        } else {
+                            alert(response.success);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
